@@ -28,7 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun WelcomeScreen(modifier: Modifier = Modifier) {
+fun WelcomeScreen(
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +45,6 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(364.dp)
-                .background(Color.Gray)
         )
 
         Spacer(
@@ -58,7 +60,7 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
                 .padding(horizontal = 22.dp)
         )
 
-
+        // 1/5
         Spacer(
             modifier = Modifier
                 .weight(1f)
@@ -95,15 +97,16 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
                 .padding(horizontal = 22.dp)
         )
 
+        // 2/5
         Spacer(
             modifier = Modifier
                 .weight(2f)
         )
 
-        // 0xFF + 5855D6
+        // 0xFF + #5855D6
         Button(
             onClick = {
-                
+                onContinue()
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF5855D6),
@@ -123,6 +126,7 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
             )
         }
 
+        // 1/5
         Spacer(
             modifier = Modifier
                 .weight(1f)
@@ -133,5 +137,9 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
 @Preview(device = "spec:width=411dp,height=900dp")
 @Composable
 private fun WelcomeScreenPreview() {
-    WelcomeScreen()
+    WelcomeScreen(
+        onContinue = {
+
+        }
+    )
 }

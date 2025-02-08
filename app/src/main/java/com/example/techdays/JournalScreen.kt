@@ -1,5 +1,6 @@
 package com.example.techdays
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,13 +14,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @Composable
 fun JournalScreen(modifier: Modifier = Modifier) {
@@ -37,11 +42,9 @@ fun JournalScreen(modifier: Modifier = Modifier) {
         )
     }
 
-    val state = rememberScrollState()
+    val scrollState = rememberScrollState()
 
-    Box(
-        contentAlignment = Alignment.BottomCenter
-    ) {
+    Box {
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
@@ -84,7 +87,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     modifier = Modifier
-                        .verticalScroll(state)
+                        .verticalScroll(scrollState)
                 ) {
                     for (journal in journalList.value) {
                         JournalItem(
@@ -95,6 +98,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
             }
         }
 
+        // Add item
         FloatingActionButton(
             onClick = {
                 journalList.value =
@@ -107,6 +111,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
             containerColor = Color.White,
             contentColor = Color(0xFF5755D7),
             modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .padding(30.dp)
         ) {
             Icon(
@@ -115,6 +120,44 @@ fun JournalScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(24.dp)
             )
+        }
+
+        val scope = rememberCoroutineScope()
+
+        // Checking conditions?
+
+        val visible = remember {
+            mutableStateOf(false)
+        }
+
+        // listen to scroll state value
+        LaunchedEffect(scrollState.value) {
+            visible.value = scrollState.value > 100
+        }
+
+        AnimatedVisibility(
+            visible = visible.value,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(30.dp)
+        ) {
+            // Scroll to top
+            FloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        scrollState.animateScrollTo(0)
+                    }
+                },
+                containerColor = Color.White,
+                contentColor = Color(0xFF5755D7),
+            ) {
+                Icon(
+                    Icons.Default.KeyboardArrowUp,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                )
+            }
         }
     }
 }
