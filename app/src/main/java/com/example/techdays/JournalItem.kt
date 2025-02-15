@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,16 +30,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-class Journal(
-    val title: String,
-    val description: String,
-    val date: String,
-)
+import com.example.techdays.database.NoteEntity
 
 @Composable
 fun JournalItem(
-    journal: Journal,
+    journal: NoteEntity,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -75,7 +75,7 @@ fun JournalItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = journal.date,
+                text = journal.getCreatedAtFormatted(),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
@@ -87,11 +87,14 @@ fun JournalItem(
             )
 
             IconButton(
-                onClick = {}
+                onClick = {
+                    onDelete()
+                }
             ) {
                 Icon(
-                    painterResource(R.drawable.user_rounded),
+                    Icons.Outlined.Delete,
                     contentDescription = null,
+                    tint = Color(0xFFF44336),
                     modifier = Modifier
                         .size(24.dp)
                 )
@@ -107,14 +110,14 @@ private fun JournalItemPreview() {
         modifier = Modifier
             .padding(20.dp)
     ) {
-        val journal = Journal(
+        val journal = NoteEntity(
             title = "Title",
             description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            date = "20 Jan 2025",
         )
 
         JournalItem(
             journal = journal,
+            onDelete = {},
             modifier = Modifier
         )
     }

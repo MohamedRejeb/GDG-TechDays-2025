@@ -27,22 +27,41 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
+import com.example.techdays.database.NoteDatabase
+import com.example.techdays.database.NoteEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun JournalScreen(modifier: Modifier = Modifier) {
-    val journalList = remember {
+fun JournalScreen(
+    addJournal: () -> Unit,
+    getAllNotes: () -> List<NoteEntity>,
+    deleteNote: (note: NoteEntity) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val noteList = remember {
         mutableStateOf(
-            listOf<Journal>()
+            listOf<NoteEntity>()
         )
     }
 
     val scrollState = rememberScrollState()
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(true) {
+        // called only 1 time
+        scope.launch(Dispatchers.IO) {
+            noteList.value = getAllNotes()
+        }
+    }
 
     Box {
         Column(
@@ -56,7 +75,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Journal (${journalList.value.size})",
+                    text = "Journal (${noteList.value.size})",
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -79,7 +98,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            if (journalList.value.size == 0) {
+            if (noteList.value.size == 0) {
                 Text(
                     text = "List empty"
                 )
@@ -89,9 +108,17 @@ fun JournalScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .verticalScroll(scrollState)
                 ) {
-                    for (journal in journalList.value) {
+                    val scope = rememberCoroutineScope()
+
+                    for (note in noteList.value) {
                         JournalItem(
-                            journal = journal,
+                            journal = note,
+                            onDelete = {
+                                scope.launch(Dispatchers.IO) {
+                                    deleteNote(note)
+                                    noteList.value = getAllNotes()
+                                }
+                            },
                         )
                     }
                 }
@@ -101,12 +128,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
         // Add item
         FloatingActionButton(
             onClick = {
-                journalList.value =
-                    journalList.value + Journal(
-                        title = "Title",
-                        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                        date = "20 Jan 2025",
-                    )
+                addJournal()
             },
             containerColor = Color.White,
             contentColor = Color(0xFF5755D7),
@@ -132,6 +154,7 @@ fun JournalScreen(modifier: Modifier = Modifier) {
 
         // listen to scroll state value
         LaunchedEffect(scrollState.value) {
+            // Called each time scrollState.value changed
             visible.value = scrollState.value > 100
         }
 
@@ -165,5 +188,9 @@ fun JournalScreen(modifier: Modifier = Modifier) {
 @Preview(device = "spec:width=411dp,height=900dp")
 @Composable
 private fun JournalScreenPreview() {
-    JournalScreen()
+    JournalScreen(
+        addJournal = {},
+        getAllNotes = { emptyList() },
+        deleteNote = {},
+    )
 }
